@@ -90,7 +90,7 @@
 									<td>".$enrollStatus."</td>"; } ?>
 									<td>
 										<form method="post" action=<?php echo 'script-delete.php?id='. $id . "&type=student&loc=" . $_SERVER['REQUEST_URI']?>>
-											<a class="btn btn-primary btn-xs" href="<?php echo 'studentDetails.php?key='.$id?>">Update</a>
+											<!--<a class="btn btn-primary btn-xs" href="<?php echo 'studentDetails.php?key='.$id?>">Update</a>-->
 											<input class="btn btn-danger btn-xs" type="submit" value="Delete" onClick="return confirm('Are you sure you want to delete this?');" />
 										</form>
 									</td>
