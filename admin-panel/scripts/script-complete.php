@@ -161,6 +161,12 @@ function crudSQL($sql){
 		return $res;
 	}
 
+	function customCrudSQL($sql,$dir){
+		include($dir);
+		$res = mysqli_query($conn,$sql)or die(mysqli_error($conn));
+		return $res;
+	}
+
 
 	function getSchoolYear(){
 		//date("Y-m-d");

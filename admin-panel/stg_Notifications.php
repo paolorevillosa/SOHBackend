@@ -45,7 +45,7 @@
 		</tr>
 		<tr>
 			<td>End Date</td>
-			<td><input type="date" class="form-control"
+			<td><input type="date" class="form-control" id="datePicker"
 			<?php
 				if($row['isEnrollemt']==1){
 					echo " disabled";	

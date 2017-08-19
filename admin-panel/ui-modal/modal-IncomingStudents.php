@@ -5,7 +5,7 @@
 			LEFT JOIN stud_grade b
 			ON a.StudentKey = b.StudentKey
 			WHERE isActive = '0'";
-	$result = (customSQL($sql,"../config.php"));
+	$result = (customCrudSQL($sql,"../config.php"));
 
 
 
@@ -13,6 +13,7 @@
 
 <table class="table">
 	<thead>
+	<?php if(mysqli_num_rows($result) > 0){ ?>
 		<tr>
 			<th>#</th>
 			<th>Last Name</th>
@@ -24,7 +25,6 @@
 	</thead>
 	<tbody>
 		<?php
-		if(mysqli_num_rows($result) > 0){
 			$count = 1;
 			while($row = mysqli_fetch_assoc($result)){
 				$id = $row['StudentKey'];
@@ -45,7 +45,10 @@
 			$count++;
 			}
 		}
+		else{
 		?>
+		<th class="text-center">NO RECORD FOUND</th>
+		<?php } ?>
 	</tbody>	
 </table>
 

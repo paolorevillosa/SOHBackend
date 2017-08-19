@@ -43,7 +43,7 @@
 						<div class="form-group">
 							<label for="inputName" class="col-sm-2 control-label">Last Name</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" id="inputName" placeholder="Name" name="txtLName" value="<?php echo getData("LastName",$row);?>">
+								<input type="text" class="form-control" id="inputName" placeholder="Last Name" name="txtLName" value="<?php echo getData("LastName",$row);?>">
 							</div>
 						</div>
 					</div>
@@ -52,7 +52,7 @@
 						<div class="form-group">
 							<label for="inputName" class="col-sm-2 control-label">First Name</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" id="inputName" placeholder="Name" name="txtFName" value="<?php echo getData("FirstName",$row);?>">
+								<input type="text" class="form-control" id="inputName" placeholder="First Name" name="txtFName" value="<?php echo getData("FirstName",$row);?>">
 							</div>
 						</div>
 					</div>
@@ -61,7 +61,7 @@
 						<div class="form-group">
 							<label for="inputName" class="col-sm-2 control-label">Middle Name</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" id="inputName" placeholder="Name" name="txtMName" value="<?php echo getData("MiddleName",$row);?>">
+								<input type="text" class="form-control" id="inputName" placeholder="Middle Name" name="txtMName" value="<?php echo getData("MiddleName",$row);?>">
 							</div>
 						</div>
 					</div>
@@ -70,7 +70,7 @@
 						<div class="form-group">
 							<label for="inputName" class="col-sm-2 control-label">Contact #</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" id="inputName" placeholder="Name" name="txtCont" value="<?php echo getData("ContactNo",$row);?>">
+								<input type="text" class="form-control" id="inputName" placeholder="Contact" name="txtCont" value="<?php echo getData("ContactNo",$row);?>">
 							</div>
 						</div>
 					</div>
@@ -114,7 +114,7 @@
 						<div class="form-group">
 							<label for="inputName" class="col-sm-2 control-label">Address</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" id="inputName" placeholder="Name" name="txtAdd" value="<?php echo getData("Address",$row);?>">
+								<input type="text" class="form-control" id="inputName" placeholder="Address" name="txtAdd" value="<?php echo getData("Address",$row);?>">
 							</div>
 						</div>
 					</div>
@@ -142,7 +142,7 @@
 					
 					<div class="row form-horizontal col-lg-12">
 						<div class="form-group">
-							<label for="inputName" class="col-sm-2 control-label">Subject</label>
+							<label for="inputName" class="col-sm-2 control-label">Department</label>
 							<div class="col-sm-4">
 								<select name="sbjCode" class="form-control">
 								<option value=""></option>
@@ -161,37 +161,13 @@
 								</select>
 							</div>
 						</div>
-					</div>
-
-					<div class="row form-horizontal col-lg-12">
-						<div class="form-group">
-							<label for="inputName" class="col-sm-2 control-label">Subject</label>
-							<div class="col-sm-4">
-								<select name="CivilStatus" class="form-control">
-								<option value=""></option>
-								<?php
-									$sqlSbj = "select * from istg_CivilStatus";
-									$res = mysqli_query($conn,$sqlSbj) or die(mysqli_error($conn));
-									while($data = mysqli_fetch_array($res)){
-										if(getData("CivilStatusKey",$row)==$data['CivilStatusKey']){
-											echo "<option value='". $data['CivilStatusKey'] ."' selected>". $data['Status'] ."</option>";
-										}
-										else{
-											echo "<option value='". $data['CivilStatusKey'] ."'>". $data['Status'] ."</option>";
-										}
-									}
-								?>
-								</select>
-							</div>
-						</div>
-					</div>
-					
+					</div>					
 					
 					
 					<div class="form-group col-lg-12">
 						<div class="modal-footer">	
 							<a href="teacher.php" type="button" class="btn btn-default">Cancel</a>
-							<button type="submit" class="btn btn-default" name="<?php echo $iden2; ?>">SAVE</button>
+							<button type="submit" class="btn btn-default" name="<?php echo $iden2; ?>">Save</button>
 						</div>
 					</div>
 				</form>

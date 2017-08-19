@@ -80,7 +80,7 @@
 										<th>Subject</th>
 										<th>Time</th>
 										<th>Teacher</th>
-										<th>Actions</th>
+										<!--<th>Actions</th>-->
 		                            </thead>
 									<tbody>
 										
@@ -92,12 +92,12 @@
 											<td><?php echo $row['SubjectDescription'];?></td>
 											<td><?php echo $row['Details'];?></td>
 											<td><?php echo $row['LastName'];;?></td>
-											<td>
+											<!--<td>
 												<form method="post" action=<?php echo 'script-delete-student.php?x='. $id?>>
 													<a class="btn btn-primary" href="<?php echo 'studentDetails.php?key='.$id?>">Update</a>
-													<!--<input class="btn btn-danger" type="submit" value="Delete" onClick="return confirm('Are you sure you want to delete this?');" />-->
+													<input class="btn btn-danger" type="submit" value="Delete" onClick="return confirm('Are you sure you want to delete this?');" />
 												</form>
-											</td>
+											</td>-->
 											</tr>
 											<?php
 													}
