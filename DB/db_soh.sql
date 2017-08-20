@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 17, 2017 at 05:40 AM
+-- Generation Time: Aug 20, 2017 at 04:57 PM
 -- Server version: 10.1.19-MariaDB
 -- PHP Version: 7.0.13
 
@@ -24,10 +24,22 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddSched` (IN `txtGrpKey` INT, IN `txtTeacherKey` INT, IN `txtTimeKey` INT, IN `txtSbjKey` INT)  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddSched` (IN `txtGrpKey` INT, IN `txtTeacherKey` INT, IN `txtTimeKey` INT, IN `txtSbjKey` INT, IN `txtAdviserKey` INT)  NO SQL
 insert into school_schedule values (null,txtGrpKey,txtTeacherKey,txtTimeKey,txtSbjKey,
-                                   concat(@r:=year(curdate())," - ",@r+1)
-                                   )$$
+         concat(@r:=year(curdate())," - ",@r+1),txtAdviserKey)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AdviserUtils` (IN `txt1` INT, IN `txt2` INT, IN `txt3` INT, IN `txt4` INT)  NO SQL
+SELECT * FROM (SELECT TeacherKey FROM stg_teacher WHERE YearLevelKey = 1 ORDER BY RAND()
+LIMIT txt1)as forFirstYear
+UNION
+SELECT * FROM (SELECT TeacherKey FROM stg_teacher WHERE YearLevelKey = 2 ORDER BY RAND()
+LIMIT txt2)as forSecYear
+UNION
+SELECT * FROM (SELECT TeacherKey FROM stg_teacher WHERE YearLevelKey = 3 ORDER BY RAND()
+LIMIT txt3)as forThirdYear
+UNION
+SELECT * FROM (SELECT TeacherKey FROM stg_teacher WHERE YearLevelKey = 4 ORDER BY RAND()
+LIMIT txt4)as forFourthYear$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_FinanceUtils` (IN `txtStudKey` INT)  NO SQL
 SELECT A.FinanceKey,
@@ -57,6 +69,21 @@ on stg.StudentGroupKey = sch.StudentGroupKey
 where `sch`.StudentGroupKey = grpKey
 order by `sch`.`ScheduleKey`$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_getScheduleV2` (IN `txtGrpKey` INT)  NO SQL
+SELECT b.StudentGroupKey,b.StudentGroupName,a.ScheduleKey,IFNULL(c.SubjectCode,'BREAK') as SubjectCode,
+IFNULL(c.SubjectDescription,'BREAK') as SubjectDescription,d.Details,
+e.LastName
+FROM school_schedule a
+LEFT JOIN stud_studentgroup b
+ON a.StudentGroupKey = b.StudentGroupKey
+LEFT JOIN stg_subject c
+ON c.SubjectKey = a.SubjectKey
+LEFT JOIN stg_time d
+ON d.TimeKey = a.TimeKey
+LEFT JOIN stg_teacher e
+ON e.TeacherKey = a.TeacherKey
+WHERE b.StudentGroupKey = txtGrpKey$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_getStudent` (IN `StudentKey` INT(10))  NO SQL
 select * from stud_student where stud_student.StudentKey = StudentKey$$
 
@@ -64,7 +91,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_getTeacherKey` (IN `txtYR` INT(1
 select `TeacherKey` from stg_teacher
 WHERE
 YearLevelKey = (select YearLevelKey from stud_studentgroup where StudentGroupKey = txtYR)
-AND SubjectDescKey = SbjKey$$
+AND SubjectKey = SbjKey$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_StudentAdd` (IN `txtStudNo` VARCHAR(8), IN `txtLName` VARCHAR(100), IN `txtFName` VARCHAR(100), IN `txtMName` VARCHAR(100), IN `txtAddress` VARCHAR(255), IN `txtContNo` VARCHAR(13), IN `txtDOB` DATE, IN `txtGName` VARCHAR(100), IN `txtGender` VARCHAR(100), IN `txtOnChild` INT)  NO SQL
 insert into stud_student values (null,txtStudNo,txtLName,txtFName,txtMName,txtOnChild,txtAddress,txtContNo,txtDOB,txtGName,txtGender,txtLName,password(txtLName),0)$$
@@ -177,7 +204,8 @@ INSERT INTO `school_enrollee` (`EnrolleeKey`, `StudentKey`, `StudentGroupKey`, `
 (10, 46, 4, 1, '2017-2018', 1),
 (11, 41, 4, 1, '2017-2018', 0),
 (12, 43, 0, 0, '2017-2018', 0),
-(13, 55, 4, 1, '2017-2018', 0);
+(13, 55, 4, 1, '2017-2018', 0),
+(14, 1, 4, 1, '2017-2018', 0);
 
 -- --------------------------------------------------------
 
@@ -228,7 +256,8 @@ INSERT INTO `school_finance` (`FinanceKey`, `StudentKey`, `EnrolleeKey`, `School
 (19, 46, 10, '2017-2018', 9500, 0, 0),
 (20, 41, 11, '2017-2018', 9500, 0, 0),
 (21, 43, 12, '2017-2018', 9500, 0, 0),
-(22, 55, 13, '2017-2018', 9500, 0, 0);
+(22, 55, 13, '2017-2018', 9500, 0, 0),
+(23, 1, 14, '2017-2018', 9500, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -263,45 +292,218 @@ INSERT INTO `school_finance_details` (`FinanceDetKey`, `FinanceKey`, `Date`, `Am
 CREATE TABLE `school_schedule` (
   `ScheduleKey` int(11) NOT NULL,
   `StudentGroupKey` int(11) NOT NULL,
-  `TeacherKey` int(11) NOT NULL,
+  `TeacherKey` varchar(11) NOT NULL,
   `TimeKey` int(11) NOT NULL,
   `SubjectKey` int(11) NOT NULL,
-  `SchoolYear` varchar(11) NOT NULL
+  `SchoolYear` varchar(11) NOT NULL,
+  `AdviserKey` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `school_schedule`
 --
 
-INSERT INTO `school_schedule` (`ScheduleKey`, `StudentGroupKey`, `TeacherKey`, `TimeKey`, `SubjectKey`, `SchoolYear`) VALUES
-(1, 1, 6, 1, 6, '2017 - 2018'),
-(2, 1, 7, 2, 7, '2017 - 2018'),
-(3, 1, 1, 3, 1, '2017 - 2018'),
-(4, 1, 3, 4, 3, '2017 - 2018'),
-(5, 1, 4, 5, 4, '2017 - 2018'),
-(6, 1, 5, 6, 5, '2017 - 2018'),
-(7, 1, 2, 7, 2, '2017 - 2018'),
-(8, 2, 7, 1, 7, '2017 - 2018'),
-(9, 2, 6, 2, 6, '2017 - 2018'),
-(10, 2, 4, 3, 4, '2017 - 2018'),
-(11, 2, 5, 4, 5, '2017 - 2018'),
-(12, 2, 2, 5, 2, '2017 - 2018'),
-(13, 2, 3, 6, 3, '2017 - 2018'),
-(14, 2, 1, 7, 1, '2017 - 2018'),
-(15, 3, 5, 1, 5, '2017 - 2018'),
-(16, 3, 2, 2, 2, '2017 - 2018'),
-(17, 3, 3, 3, 3, '2017 - 2018'),
-(18, 3, 4, 4, 4, '2017 - 2018'),
-(19, 3, 1, 5, 1, '2017 - 2018'),
-(20, 3, 6, 6, 6, '2017 - 2018'),
-(21, 3, 7, 7, 7, '2017 - 2018'),
-(22, 4, 3, 1, 3, '2017 - 2018'),
-(23, 4, 1, 2, 1, '2017 - 2018'),
-(24, 4, 6, 3, 6, '2017 - 2018'),
-(25, 4, 2, 4, 2, '2017 - 2018'),
-(26, 4, 5, 5, 5, '2017 - 2018'),
-(27, 4, 7, 6, 7, '2017 - 2018'),
-(28, 4, 4, 7, 4, '2017 - 2018');
+INSERT INTO `school_schedule` (`ScheduleKey`, `StudentGroupKey`, `TeacherKey`, `TimeKey`, `SubjectKey`, `SchoolYear`, `AdviserKey`) VALUES
+(1, 1, '7', 1, 7, '2017 - 2018', 1),
+(2, 1, '6', 2, 6, '2017 - 2018', 8),
+(3, 1, '3', 3, 3, '2017 - 2018', 3),
+(4, 1, '1', 4, 8, '2017 - 2018', 9),
+(5, 1, '1', 5, 1, '2017 - 2018', 2),
+(6, 1, '2', 6, 2, '2017 - 2018', 14),
+(7, 1, '5', 7, 5, '2017 - 2018', 11),
+(8, 1, '4', 8, 4, '2017 - 2018', 13),
+(9, 2, '5', 1, 5, '2017 - 2018', 1),
+(10, 2, '7', 2, 7, '2017 - 2018', 8),
+(11, 2, '2', 3, 2, '2017 - 2018', 3),
+(12, 2, '3', 4, 8, '2017 - 2018', 9),
+(13, 2, '3', 5, 3, '2017 - 2018', 2),
+(14, 2, '4', 6, 4, '2017 - 2018', 14),
+(15, 2, '1', 7, 1, '2017 - 2018', 11),
+(16, 2, '6', 8, 6, '2017 - 2018', 13),
+(17, 3, '4', 1, 4, '2017 - 2018', 1),
+(18, 3, '2', 2, 2, '2017 - 2018', 8),
+(19, 3, '5', 3, 5, '2017 - 2018', 3),
+(20, 3, '7', 4, 8, '2017 - 2018', 9),
+(21, 3, '7', 5, 7, '2017 - 2018', 2),
+(22, 3, '1', 6, 1, '2017 - 2018', 14),
+(23, 3, '6', 7, 6, '2017 - 2018', 11),
+(24, 3, '3', 8, 3, '2017 - 2018', 13),
+(25, 4, '2', 1, 2, '2017 - 2018', 1),
+(26, 4, '1', 2, 1, '2017 - 2018', 8),
+(27, 4, '6', 3, 6, '2017 - 2018', 3),
+(28, 4, '4', 4, 8, '2017 - 2018', 9),
+(29, 4, '4', 5, 4, '2017 - 2018', 2),
+(30, 4, '5', 6, 5, '2017 - 2018', 14),
+(31, 4, '3', 7, 3, '2017 - 2018', 11),
+(32, 4, '7', 8, 7, '2017 - 2018', 13),
+(33, 5, '1', 1, 1, '2017 - 2018', 1),
+(34, 5, '3', 2, 3, '2017 - 2018', 8),
+(35, 5, '4', 3, 4, '2017 - 2018', 3),
+(36, 5, '5', 4, 8, '2017 - 2018', 9),
+(37, 5, '5', 5, 5, '2017 - 2018', 2),
+(38, 5, '6', 6, 6, '2017 - 2018', 14),
+(39, 5, '7', 7, 7, '2017 - 2018', 11),
+(40, 5, '2', 8, 2, '2017 - 2018', 13),
+(41, 6, '0', 1, 6, '2017 - 2018', 1),
+(42, 6, '0', 2, 3, '2017 - 2018', 8),
+(43, 6, '0', 3, 1, '2017 - 2018', 3),
+(44, 6, '0', 4, 8, '2017 - 2018', 9),
+(45, 6, '0', 5, 4, '2017 - 2018', 2),
+(46, 6, '0', 6, 5, '2017 - 2018', 14),
+(47, 6, '0', 7, 7, '2017 - 2018', 11),
+(48, 6, '0', 8, 2, '2017 - 2018', 13),
+(49, 7, '0', 1, 4, '2017 - 2018', 1),
+(50, 7, '0', 2, 2, '2017 - 2018', 8),
+(51, 7, '0', 3, 3, '2017 - 2018', 3),
+(52, 7, '0', 4, 8, '2017 - 2018', 9),
+(53, 7, '0', 5, 6, '2017 - 2018', 2),
+(54, 7, '0', 6, 7, '2017 - 2018', 14),
+(55, 7, '0', 7, 5, '2017 - 2018', 11),
+(56, 7, '0', 8, 1, '2017 - 2018', 13),
+(57, 8, '0', 1, 7, '2017 - 2018', 1),
+(58, 8, '0', 2, 6, '2017 - 2018', 8),
+(59, 8, '0', 3, 5, '2017 - 2018', 3),
+(60, 8, '0', 4, 8, '2017 - 2018', 9),
+(61, 8, '0', 5, 2, '2017 - 2018', 2),
+(62, 8, '0', 6, 1, '2017 - 2018', 14),
+(63, 8, '0', 7, 3, '2017 - 2018', 11),
+(64, 8, '0', 8, 4, '2017 - 2018', 13),
+(65, 9, '0', 1, 2, '2017 - 2018', 1),
+(66, 9, '0', 2, 4, '2017 - 2018', 8),
+(67, 9, '0', 3, 7, '2017 - 2018', 3),
+(68, 9, '0', 4, 8, '2017 - 2018', 9),
+(69, 9, '0', 5, 5, '2017 - 2018', 2),
+(70, 9, '0', 6, 3, '2017 - 2018', 14),
+(71, 9, '0', 7, 1, '2017 - 2018', 11),
+(72, 9, '0', 8, 6, '2017 - 2018', 13),
+(73, 10, '0', 1, 5, '2017 - 2018', 1),
+(74, 10, '0', 2, 7, '2017 - 2018', 8),
+(75, 10, '0', 3, 4, '2017 - 2018', 3),
+(76, 10, '0', 4, 8, '2017 - 2018', 9),
+(77, 10, '0', 5, 1, '2017 - 2018', 2),
+(78, 10, '0', 6, 6, '2017 - 2018', 14),
+(79, 10, '0', 7, 2, '2017 - 2018', 11),
+(80, 10, '0', 8, 3, '2017 - 2018', 13),
+(81, 11, '0', 1, 1, '2017 - 2018', 1),
+(82, 11, '0', 2, 2, '2017 - 2018', 8),
+(83, 11, '0', 3, 6, '2017 - 2018', 3),
+(84, 11, '0', 4, 8, '2017 - 2018', 9),
+(85, 11, '0', 5, 4, '2017 - 2018', 2),
+(86, 11, '0', 6, 3, '2017 - 2018', 14),
+(87, 11, '0', 7, 5, '2017 - 2018', 11),
+(88, 11, '0', 8, 7, '2017 - 2018', 13),
+(89, 12, '0', 1, 3, '2017 - 2018', 1),
+(90, 12, '0', 2, 7, '2017 - 2018', 8),
+(91, 12, '0', 3, 4, '2017 - 2018', 3),
+(92, 12, '0', 4, 8, '2017 - 2018', 9),
+(93, 12, '0', 5, 2, '2017 - 2018', 2),
+(94, 12, '0', 6, 5, '2017 - 2018', 14),
+(95, 12, '0', 7, 1, '2017 - 2018', 11),
+(96, 12, '0', 8, 6, '2017 - 2018', 13),
+(97, 13, '0', 1, 4, '2017 - 2018', 1),
+(98, 13, '0', 2, 3, '2017 - 2018', 8),
+(99, 13, '0', 3, 2, '2017 - 2018', 3),
+(100, 13, '0', 4, 8, '2017 - 2018', 9),
+(101, 13, '0', 5, 1, '2017 - 2018', 2),
+(102, 13, '0', 6, 6, '2017 - 2018', 14),
+(103, 13, '0', 7, 7, '2017 - 2018', 11),
+(104, 13, '0', 8, 5, '2017 - 2018', 13),
+(105, 14, '0', 1, 2, '2017 - 2018', 1),
+(106, 14, '0', 2, 6, '2017 - 2018', 8),
+(107, 14, '0', 3, 7, '2017 - 2018', 3),
+(108, 14, '0', 4, 8, '2017 - 2018', 9),
+(109, 14, '0', 5, 5, '2017 - 2018', 2),
+(110, 14, '0', 6, 1, '2017 - 2018', 14),
+(111, 14, '0', 7, 3, '2017 - 2018', 11),
+(112, 14, '0', 8, 4, '2017 - 2018', 13),
+(113, 15, '0', 1, 6, '2017 - 2018', 1),
+(114, 15, '0', 2, 5, '2017 - 2018', 8),
+(115, 15, '0', 3, 3, '2017 - 2018', 3),
+(116, 15, '0', 4, 8, '2017 - 2018', 9),
+(117, 15, '0', 5, 7, '2017 - 2018', 2),
+(118, 15, '0', 6, 4, '2017 - 2018', 14),
+(119, 15, '0', 7, 2, '2017 - 2018', 11),
+(120, 15, '0', 8, 1, '2017 - 2018', 13),
+(121, 16, '0', 1, 3, '2017 - 2018', 1),
+(122, 16, '0', 2, 6, '2017 - 2018', 8),
+(123, 16, '0', 3, 5, '2017 - 2018', 3),
+(124, 16, '0', 4, 8, '2017 - 2018', 9),
+(125, 16, '0', 5, 4, '2017 - 2018', 2),
+(126, 16, '0', 6, 1, '2017 - 2018', 14),
+(127, 16, '0', 7, 7, '2017 - 2018', 11),
+(128, 16, '0', 8, 2, '2017 - 2018', 13),
+(129, 17, '0', 1, 6, '2017 - 2018', 1),
+(130, 17, '0', 2, 2, '2017 - 2018', 8),
+(131, 17, '0', 3, 4, '2017 - 2018', 3),
+(132, 17, '0', 4, 8, '2017 - 2018', 9),
+(133, 17, '0', 5, 1, '2017 - 2018', 2),
+(134, 17, '0', 6, 7, '2017 - 2018', 14),
+(135, 17, '0', 7, 3, '2017 - 2018', 11),
+(136, 17, '0', 8, 5, '2017 - 2018', 13),
+(137, 18, '0', 1, 1, '2017 - 2018', 1),
+(138, 18, '0', 2, 4, '2017 - 2018', 8),
+(139, 18, '0', 3, 3, '2017 - 2018', 3),
+(140, 18, '0', 4, 8, '2017 - 2018', 9),
+(141, 18, '0', 5, 6, '2017 - 2018', 2),
+(142, 18, '0', 6, 5, '2017 - 2018', 14),
+(143, 18, '0', 7, 2, '2017 - 2018', 11),
+(144, 18, '0', 8, 7, '2017 - 2018', 13),
+(145, 19, '0', 1, 2, '2017 - 2018', 1),
+(146, 19, '0', 2, 3, '2017 - 2018', 8),
+(147, 19, '0', 3, 1, '2017 - 2018', 3),
+(148, 19, '0', 4, 8, '2017 - 2018', 9),
+(149, 19, '0', 5, 7, '2017 - 2018', 2),
+(150, 19, '0', 6, 4, '2017 - 2018', 14),
+(151, 19, '0', 7, 5, '2017 - 2018', 11),
+(152, 19, '0', 8, 6, '2017 - 2018', 13),
+(153, 20, '0', 1, 4, '2017 - 2018', 1),
+(154, 20, '0', 2, 5, '2017 - 2018', 8),
+(155, 20, '0', 3, 7, '2017 - 2018', 3),
+(156, 20, '0', 4, 8, '2017 - 2018', 9),
+(157, 20, '0', 5, 3, '2017 - 2018', 2),
+(158, 20, '0', 6, 2, '2017 - 2018', 14),
+(159, 20, '0', 7, 6, '2017 - 2018', 11),
+(160, 20, '0', 8, 1, '2017 - 2018', 13),
+(161, 21, '0', 1, 7, '2017 - 2018', 1),
+(162, 21, '0', 2, 2, '2017 - 2018', 8),
+(163, 21, '0', 3, 5, '2017 - 2018', 3),
+(164, 21, '0', 4, 8, '2017 - 2018', 9),
+(165, 21, '0', 5, 3, '2017 - 2018', 2),
+(166, 21, '0', 6, 4, '2017 - 2018', 14),
+(167, 21, '0', 7, 1, '2017 - 2018', 11),
+(168, 21, '0', 8, 6, '2017 - 2018', 13),
+(169, 22, '0', 1, 1, '2017 - 2018', 1),
+(170, 22, '0', 2, 4, '2017 - 2018', 8),
+(171, 22, '0', 3, 3, '2017 - 2018', 3),
+(172, 22, '0', 4, 8, '2017 - 2018', 9),
+(173, 22, '0', 5, 6, '2017 - 2018', 2),
+(174, 22, '0', 6, 7, '2017 - 2018', 14),
+(175, 22, '0', 7, 5, '2017 - 2018', 11),
+(176, 22, '0', 8, 2, '2017 - 2018', 13),
+(177, 23, '0', 1, 5, '2017 - 2018', 1),
+(178, 23, '0', 2, 3, '2017 - 2018', 8),
+(179, 23, '0', 3, 1, '2017 - 2018', 3),
+(180, 23, '0', 4, 8, '2017 - 2018', 9),
+(181, 23, '0', 5, 7, '2017 - 2018', 2),
+(182, 23, '0', 6, 6, '2017 - 2018', 14),
+(183, 23, '0', 7, 2, '2017 - 2018', 11),
+(184, 23, '0', 8, 4, '2017 - 2018', 13),
+(185, 24, '0', 1, 4, '2017 - 2018', 1),
+(186, 24, '0', 2, 5, '2017 - 2018', 8),
+(187, 24, '0', 3, 7, '2017 - 2018', 3),
+(188, 24, '0', 4, 8, '2017 - 2018', 9),
+(189, 24, '0', 5, 2, '2017 - 2018', 2),
+(190, 24, '0', 6, 1, '2017 - 2018', 14),
+(191, 24, '0', 7, 6, '2017 - 2018', 11),
+(192, 24, '0', 8, 3, '2017 - 2018', 13),
+(193, 25, '0', 1, 3, '2017 - 2018', 1),
+(194, 25, '0', 2, 6, '2017 - 2018', 8),
+(195, 25, '0', 3, 2, '2017 - 2018', 3),
+(196, 25, '0', 4, 8, '2017 - 2018', 9),
+(197, 25, '0', 5, 1, '2017 - 2018', 2),
+(198, 25, '0', 6, 5, '2017 - 2018', 14),
+(199, 25, '0', 7, 4, '2017 - 2018', 11),
+(200, 25, '0', 8, 7, '2017 - 2018', 13);
 
 -- --------------------------------------------------------
 
@@ -416,7 +618,12 @@ INSERT INTO `stg_teacher` (`TeacherKey`, `TeacherNo`, `LastName`, `FirstName`, `
 (6, '10006', 'jared', '', '', '', '', '2011-01-01', 1, 6, 6, 0, '', ''),
 (7, '10007', 'paothegreat6', '', '', '', NULL, '0000-00-00', 1, 7, 7, 0, '', ''),
 (8, '10008', 'paoAP', '', '', '', NULL, '0000-00-00', 1, 5, 8, 0, '', ''),
-(9, '10009', 'paoComp', '', '', '', NULL, '0000-00-00', 1, 6, 9, 0, '', '');
+(9, '10009', 'paoComp', '', '', '', NULL, '0000-00-00', 1, 6, 9, 0, '', ''),
+(10, '', '', '', '', '', NULL, '0000-00-00', 2, 0, 0, 0, '', ''),
+(11, '', '', '', '', '', NULL, '0000-00-00', 2, 0, 0, 0, '', ''),
+(12, '', '', '', '', '', NULL, '0000-00-00', 2, 0, 0, 0, '', ''),
+(13, '', '', '', '', '', NULL, '0000-00-00', 2, 0, 0, 0, '', ''),
+(14, '', '', '', '', '', NULL, '0000-00-00', 2, 0, 0, 0, '', '');
 
 -- --------------------------------------------------------
 
@@ -438,10 +645,11 @@ INSERT INTO `stg_time` (`TimeKey`, `Details`, `Status`) VALUES
 (1, '7:00 AM - 7:50 AM', 1),
 (2, '8: 00 AM - 9:00 AM', 1),
 (3, '9:00 AM - 10:00 AM', 1),
-(4, '10:00 - 11:00 AM', 1),
+(4, 'test', 0),
 (5, '11:00 AM - 12::00 NN', 1),
 (6, '12:00 NN - 1:00 PM', 1),
-(7, '1:00 pm - 2:00 pm', 1);
+(7, '1:00 pm - 2:00 pm', 1),
+(8, '10:00 - 11:00 AM', 1);
 
 -- --------------------------------------------------------
 
@@ -549,7 +757,8 @@ INSERT INTO `stud_clearance` (`ClearanceKey`, `StudentKey`, `EnrolleeKey`, `Libr
 (10, 0, 9, 0, 0, 0),
 (11, 41, 11, 0, 0, 0),
 (12, 43, 12, 0, 0, 0),
-(13, 55, 13, 0, 0, 0);
+(13, 55, 13, 0, 0, 0),
+(14, 1, 14, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -692,11 +901,9 @@ CREATE TABLE `stud_student` (
 --
 
 INSERT INTO `stud_student` (`StudentKey`, `StudentNo`, `LastName`, `FirstName`, `MiddleName`, `isOnlyChild`, `Address`, `ContactNo`, `DOB`, `GuardianName`, `Gender`, `username`, `password`, `isActive`) VALUES
-(1, '', 'Revillosa', 'Kristian Paolo', 'Galicia', 0, 'Taga Pasig', '09497145955', '1994-12-04', 'Wala', 'M', 'pao', 'pao', 0),
+(1, '17-0014', 'Revillosa', 'Kristian Paolo', 'Galicia', 0, 'Taga Pasig', '09497145955', '1994-12-04', 'Wala', 'M', '17-0014', '*C4E74DDDC9CC9E2FDCDB7F63B127FB638831262E', 1),
 (41, '17-0011', 'txtLName', 'txtFName', 'txtMName', 0, 'txtAddress', 'txtContNo', '0000-00-00', 'txtGName', 't', 'txtLName', '*4087CB91AE10DF0DD802935B1D7998C64E183E32', 1),
-(42, '', 'pao', '', '', 0, '', '', '0000-00-00', '', '', 'pao', '*226F24D88B3D51C9AF604FF7D1A4140D233411C4', 1),
 (43, '17-0012', '', '', '', 1, '0', '', '0000-00-00', '', 'M', '', '', 1),
-(44, '', 'revillosa', '', '', 0, '1', '', '0000-00-00', '', '', 'revillosa', '*8A76716C50AABF96A1592F06260436AF8F8A17FD', 1),
 (46, '17-0010', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
 (47, '17-00010', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
 (48, '17-00010', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
@@ -705,7 +912,6 @@ INSERT INTO `stud_student` (`StudentKey`, `StudentNo`, `LastName`, `FirstName`, 
 (51, '17-0007', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
 (52, '17-0002', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
 (53, '17-0001', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(54, '16', 'rev', '', '', 0, '0', '', '0000-00-00', '', '', 'rev', '*244227DED1436168AAAE9ED4336D5D4F58851618', 1),
 (55, '17-0013', 'revillosa', '', '', 0, '0', '', '0000-00-00', '', '', '17-0013', '*908BE2B7EB7D7567F7FF98716850F59BA69AA9DB', 1);
 
 -- --------------------------------------------------------
@@ -731,7 +937,27 @@ INSERT INTO `stud_studentgroup` (`StudentGroupKey`, `StudentGroupName`, `Size`, 
 (2, 'sec2', 10, 1, ''),
 (3, 'sec3', 10, 1, ''),
 (4, 'sec4', 10, 1, ''),
-(5, 'sec1', 10, 2, 'test');
+(5, 'sec1', 10, 1, 'test'),
+(6, 'sec2:2', 40, 2, ''),
+(7, 'sec3:2', 0, 2, ''),
+(8, 'sec4:2', 0, 2, ''),
+(9, 'sec1:3', 0, 2, ''),
+(10, 'sec2:3', 40, 2, ''),
+(11, 'sec3:3', 0, 3, ''),
+(12, 'sec4:3', 0, 3, ''),
+(13, 'sec1:4', 0, 3, ''),
+(14, 'sec2:4', 0, 3, ''),
+(15, 'sec3:4', 0, 3, ''),
+(16, 'sec4:4', 0, 4, ''),
+(17, 'test1', 0, 4, ''),
+(18, 'test2', 0, 4, ''),
+(19, 'test3', 0, 4, ''),
+(20, 'test4', 0, 4, ''),
+(21, 'test5', 0, 5, ''),
+(22, 'test6', 0, 5, ''),
+(23, 'test7', 0, 5, ''),
+(24, 'test8', 0, 5, ''),
+(25, 'test9', 0, 5, '');
 
 -- --------------------------------------------------------
 
@@ -1056,7 +1282,7 @@ ALTER TABLE `istg_gender`
 -- AUTO_INCREMENT for table `school_enrollee`
 --
 ALTER TABLE `school_enrollee`
-  MODIFY `EnrolleeKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `EnrolleeKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 --
 -- AUTO_INCREMENT for table `school_enrollment_period`
 --
@@ -1066,7 +1292,7 @@ ALTER TABLE `school_enrollment_period`
 -- AUTO_INCREMENT for table `school_finance`
 --
 ALTER TABLE `school_finance`
-  MODIFY `FinanceKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `FinanceKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 --
 -- AUTO_INCREMENT for table `school_finance_details`
 --
@@ -1076,7 +1302,7 @@ ALTER TABLE `school_finance_details`
 -- AUTO_INCREMENT for table `school_schedule`
 --
 ALTER TABLE `school_schedule`
-  MODIFY `ScheduleKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `ScheduleKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=201;
 --
 -- AUTO_INCREMENT for table `stg_books`
 --
@@ -1096,12 +1322,12 @@ ALTER TABLE `stg_subjectdesc`
 -- AUTO_INCREMENT for table `stg_teacher`
 --
 ALTER TABLE `stg_teacher`
-  MODIFY `TeacherKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `TeacherKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 --
 -- AUTO_INCREMENT for table `stg_time`
 --
 ALTER TABLE `stg_time`
-  MODIFY `TimeKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `TimeKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 --
 -- AUTO_INCREMENT for table `stg_tuitionfee`
 --
@@ -1121,7 +1347,7 @@ ALTER TABLE `stg_yearlevel`
 -- AUTO_INCREMENT for table `stud_clearance`
 --
 ALTER TABLE `stud_clearance`
-  MODIFY `ClearanceKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `ClearanceKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 --
 -- AUTO_INCREMENT for table `stud_clearance1`
 --
@@ -1151,7 +1377,7 @@ ALTER TABLE `stud_student`
 -- AUTO_INCREMENT for table `stud_studentgroup`
 --
 ALTER TABLE `stud_studentgroup`
-  MODIFY `StudentGroupKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `StudentGroupKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 --
 -- AUTO_INCREMENT for table `tempstudtable`
 --
