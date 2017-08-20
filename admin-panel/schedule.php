@@ -58,7 +58,7 @@
 								if(!empty($_POST['yearLevel'])){
 									$id = $_POST['section'];	
 								}
-								$sql = "call sp_getSchedule('$id')";
+								$sql = "call sp_getScheduleV2('$id')";
 								$result = mysqli_query($conn,$sql) or die(mysqli_error($conn));
 						?>
 						<table class="table">

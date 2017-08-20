@@ -1,5 +1,7 @@
 <?php
-	echo TotalSubject();
+	
+	//set_time_limit(0) ;
+	//echo TotalSubject();
 	echo '<pre>';
 	//print_r(subjectShuffle());
 	echo '</pre>';
@@ -13,42 +15,34 @@
 				$arraySub[] = $row['SubjectKey'];
 			}
 		}
+
+		$groupKeys = getSbjGroup();
+
 		shuffle($arraySub);
-		
-		for($x=0;$x<=3;$x++){ // this is for the number of of subject/sec to be produced by the system --this will be change according to number of studentGroup
+		$idYL = 1; //init idYL data
+		for($x=0;$x<=24;$x++){ // this is for the number of of subject/sec to be produced by the system 
 			shuffle($arraySub);
-			if($x>0){
-				while(array_identical($array,$arraySub)){
+			//this will reset the array to avoid runtime error
+			if($idYL < $groupKeys[$x]){
+				$forCheckingArray = array();
+			}
+			if($x>0 && array_filter($forCheckingArray)){
+				while(array_identical($forCheckingArray,$arraySub)){
 					shuffle($arraySub);
 				}
 			}
-			$array[] = $arraySub;
+			$idYL = $groupKeys[$x];
+			$forCheckingArray[] = $arraySub;
+
+			//final Array :: dont touch this
+			$finalArray[] = $arraySub;
 		}
 		$result->close();
-		return $array;
+		return $finalArray;
 	}
 
 
-	function array_identical($array1,$array2){
-		//this is to check if array is identical in terms of
-		//size and value according to their order
-		//ARRAY1 IS A MULTIDIMENSIONAL ARRAY
-		//ARRAY2 IS A SINGLE ARRAY
-		
-		//Created by: 	paogorithm
-		//Date: 		4/24/2017
-		foreach($array1 as $arr){
-			$x=0;
-			foreach($arr as $checkArr){
-				if($checkArr == $array2[$x]){
-					return true;
-					break;
-				}
-				$x++;
-			}
-		}
-		return false;
-	}
+	
 	
 	function TotalSubject(){
 		include("config.php");
@@ -69,11 +63,14 @@
 		return $data;	
 	}
 	
+	//MAIN FUNCTION OF SCHEDULE :: THIS WILL AUTO GENERATE STUDENT SCHEDULES
 	$studgrp = 1;
+	$sysTimeKey = getTime();
+	$adviserKey = getTeacher();
 	foreach(subjectShuffle() as $arr){
 		include('config.php');
 		
-		$timeKey = 1;
+		$timeKey = 0;
 		foreach($arr as $sbjCode){
 			$sql = "call sp_getTeacherKey($studgrp,$sbjCode)";
 			$result = mysqli_query($conn,$sql) or die (mysqli_error($conn));
@@ -81,7 +78,7 @@
 			if(mysqli_num_rows($result) > 0 ){
 				$teacherKey="";
 				while($row = mysqli_fetch_assoc($result)){
-					//echo $row['TeacherKey'] . "<BR>";
+					//echo "TEACHER CODE:" . $row['TeacherKey'] . "<BR>";
 					$teacherKey = $teacherKey . $row['TeacherKey'] . ",";
 				}
 			}
@@ -92,16 +89,113 @@
 			$result->close(); 
 			$conn->next_result();  //this is to avoid out of sync error ::: caused by multiple query inside the loop
 			
-			
+			insert:
 			//this serves as inserting Data in School
-			$sqlInsert = "call sp_AddSched($studgrp,$teacherKey,$timeKey,$sbjCode)";
-			//$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
+			echo $sysTimeKey[$timeKey]['Status'];
+			if($sysTimeKey[$timeKey]['Status']==0){
+				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . 8 . "," . $adviserKey[$timeKey] . ")";
+				$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
+				$timeKey++;
+				goto insert;
+			}
+			else{
+				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . $sbjCode . "," . $adviserKey[$timeKey] . ")";
+				$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
+				$timeKey++;
+			}
 			
 			$conn->next_result();
 			
-			$timeKey++;
+			
 		}
 		$studgrp++;
-		echo "<br><br><br><br>";
+		echo "<br><br>";
+		// ."<br>";
+	}
+	//END OF MAIN FUNCTION
+?>
+
+
+
+<!-- //schedule Utils -->
+<?php
+	function getSbjGroup(){
+		include("config.php");
+		$sql = "SELECT * from stud_StudentGroup";
+		$result = mysqli_query($conn ,$sql)OR die(mysqli_error($conn));
+		while($row = mysqli_fetch_assoc($result)){
+			$data[] = $row['YearLevelKey'];
+		}
+		$result->close();
+		return ($data);
+	}
+
+	//UTILS for adding sched school_adviser
+	function getTeacher(){
+		include("config.php");
+		$limit = utilsForGetTeacher();
+		$sql = "CALL sp_AdviserUtils($limit[0],$limit[1],$limit[2],$limit[3])";
+		$result = mysqli_query($conn ,$sql)OR die(mysqli_error($conn));
+		while($row = mysqli_fetch_assoc($result)){
+			$data[] = $row['TeacherKey'];
+		}
+		$result->close();
+		return $data;
+	}
+	echo "<pre>";
+	print_r(getTime());
+
+	function utilsForGetTeacher(){
+		include("config.php");
+		$sql = "SELECT count(*) as data FROM stud_studentGroup
+				GROUP BY YearLevelKey";
+		$result = mysqli_query($conn ,$sql)OR die(mysqli_error($conn));
+		while($row = mysqli_fetch_assoc($result)){
+			$data[] = $row['data'];
+		}
+		$result->close();
+		return ($data);
+	}
+
+	//UTILS for adding break in schedules
+	function getTime(){
+		include("config.php");
+		$sql = "SELECT * from stg_time";
+		$result = mysqli_query($conn ,$sql)OR die(mysqli_error($conn));
+		while($row = mysqli_fetch_assoc($result)){
+			$data[] = $row;
+		}
+		$result->close();
+		return $data;	
+	}
+
+
+
+	function array_identical($array1,$array2){
+		//this is to check if array is identical in terms of
+		//size and value according to their order
+		//ARRAY1 IS A MULTIDIMENSIONAL ARRAY
+		//ARRAY2 IS A SINGLE ARRAY
+		//NOTE :: To much data on ARRAY1 can cause runtime error
+		
+		//Created by: 	paogorithm
+		//Date: 		4/24/2017
+		foreach($array1 as $arr){
+			$x=0;
+			foreach($arr as $checkArr){
+				if($checkArr == $array2[$x]){
+					return true;
+					break;
+				}
+				$x++;
+			}
+		}
+		return false;
 	}
 ?>
+
+<!--
+	SELECT YearLevelKey,count(*) as countPerYearLevel
+	FROM stud_studentgroup
+	GROUP BY YearLevelKey
+-->
