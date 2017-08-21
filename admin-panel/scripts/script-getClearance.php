@@ -3,7 +3,7 @@
  include "../config.php";
  	$sectionKey = $_GET['section'];
  	$yearLevel = $_GET['yearLevel'];
-	$sql = "SELECT a.StudentKey,concat(a.LastName,', ',a.FirstName,' ',a.MiddleName) AS Name,a.StudentNo
+	$sql = "SELECT a.StudentKey,concat(a.LastName,', ',a.FirstName,' ',a.MiddleName) AS 'Name',a.StudentNo
 			,b.Guidance,b.Library
 			FROM school_enrollee c 
 			LEFT JOIN stud_student a 
@@ -39,9 +39,9 @@
 							WHERE A.StudentKey = $key";
 				$result2 = mysqli_query($conn,$getBal)or die(mysqli_error($conn));
 				$initBal = "Not Cleared";
-				if(mysqli_num_rows($result2) > 0){
+				if(mysqli_num_rows($result2) > 0 ){
 					$row2 = mysqli_fetch_assoc($result2);
-					$initBal = $row2['Balance'] > 0 ? "Not Cleared" : "Cleared";
+					$initBal = $row2['Balance'] > 0 || $row2['Balance']==null ? "Not Cleared" : "Cleared";
 				}
 				echo'	<tr>
 						<td>' . $row["StudentNo"] . '</td>

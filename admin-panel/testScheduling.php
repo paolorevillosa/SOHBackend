@@ -67,6 +67,7 @@
 	$studgrp = 1;
 	$sysTimeKey = getTime();
 	$adviserKey = getTeacher();
+	$idenAdviser = 0;
 	foreach(subjectShuffle() as $arr){
 		include('config.php');
 		
@@ -93,13 +94,13 @@
 			//this serves as inserting Data in School
 			echo $sysTimeKey[$timeKey]['Status'];
 			if($sysTimeKey[$timeKey]['Status']==0){
-				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . 8 . "," . $adviserKey[$timeKey] . ")";
+				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . 8 . "," . $adviserKey[$idenAdviser] . ")";
 				$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
 				$timeKey++;
 				goto insert;
 			}
 			else{
-				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . $sbjCode . "," . $adviserKey[$timeKey] . ")";
+				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . $sbjCode . "," . $adviserKey[$idenAdviser] . ")";
 				$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
 				$timeKey++;
 			}
@@ -109,6 +110,7 @@
 			
 		}
 		$studgrp++;
+		$idenAdviser++;
 		echo "<br><br>";
 		// ."<br>";
 	}

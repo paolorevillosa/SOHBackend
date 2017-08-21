@@ -33,7 +33,7 @@
 					<li onclick="showDiv(3,6)" class="btn btn-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in">List of Books</a></li>
 					<li onclick="showDiv(4,6)" class="btn btn-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in">School Information</a></li>
 					<li onclick="showDiv(5,6)" class="btn btn-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in">Uniform</a></li>
-					<li onclick="showDiv(6,6)" class="btn btn-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in">Notification</a></li>
+					<li onclick="showDiv(6,6)" class="btn btn-xs"><a href="#" data-toggle="collapse" data-target=".navbar-collapse.in">Notification and Enrollment</a></li>
 				  </ul>
 				</div><!-- /.navbar-collapse -->
 			</div>

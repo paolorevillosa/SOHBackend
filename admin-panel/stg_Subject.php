@@ -10,7 +10,7 @@
 			</div>
 			<div class="panel-body">
 				<div class="col-lg-10 pull-right">
-					<a class="btn btn-primary pull-right" href="studentDetails.php">Add New Subject</a>
+					<!--<a class="btn btn-primary pull-right" href="studentDetails.php">Add New Subject</a>-->
 				</div>
 			</div>
 			<!-- Student Information -->
@@ -58,7 +58,7 @@
 			</div>
 			<div class="panel-body">
 				<div class="col-lg-10 pull-right">
-					<a class="btn btn-primary pull-right" href="studentDetails.php">Modify Subject</a>
+					<a class="btn btn-primary pull-right" href="stg_SubjectMod.php">Modify Subject</a>
 				</div>
 
 				<div>

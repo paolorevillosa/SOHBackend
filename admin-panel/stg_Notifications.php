@@ -4,7 +4,7 @@
 	<tbody>
 		<tr>
 			<td>Enrollment</td>
-		<form method="post">
+		<form method="post" action="testScheduling.php">
 		<?php
 			if(isset($_POST['btnA'])){
 				$sql = "UPDATE school_enrollment_period SET dateCreated=curdate(), isEnrollemt = 1";

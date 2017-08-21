@@ -23,7 +23,7 @@
 				<td>
 					<form method="post" action=<?php echo 'scripts/script-stgDelete.php?id='. $id . '&type=uniform'?> >
 						<input class="btn btn-xs btn-danger" type="submit" value="Delete" onClick="return confirm('Are you sure you want to delete this?');" />
-						<button id="btnUpdate" class="btn btn-primary btn-xs" onclick="modOnClick(<?php echo $id; ?>)">Update</button>
+						<button id="btnUpdateUnif" class="btn btn-primary btn-xs" onclick="modOnClickUnif(<?php echo $id; ?>)">Update</button>
 					</form>
 				</td>
 			</tr>
@@ -51,7 +51,7 @@
 
 <script type="text/javascript">
 
-	function modOnClick($id){
+	function modOnClickUnif($id){
 		$.ajax({
 			url: "scripts/script-getUniformModal.php",
 			data: {id:$id},
@@ -72,7 +72,7 @@
 	  }
 	});
 
-	$('button[id="btnUpdate"]').on("click",function(evt){
+	$('button[id="btnUpdateUnif"]').on("click",function(evt){
 		evt.preventDefault();
 	});
 
