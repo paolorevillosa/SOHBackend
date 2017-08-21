@@ -68,6 +68,7 @@
 					<!-- END of User Profile -->
 					<li>
                         <a href="dashboard.php"><i class="fa fa-fw fa-bar-chart-o"></i> My Schedule</a>
+                        <a href="grade.php"><i class="fa fa-fw fa-bar-chart-o"></i> Student Grade</a>
                     </li>
                 </ul>
             </div>

@@ -25,15 +25,12 @@
 						<?php 
 							include "config.php";
 
-							$sql = "SELECT z.ScheduleKey,a.SubjectDescription,b.StudentGroupName,c.Details
-							 FROM school_schedule z
-							 LEFT JOIN stg_subject a
-							 ON z.SubjectKey = a.SubjectKey
-							 LEFT JOIN stud_studentgroup b
-							 ON z.StudentGroupKey = b.StudentGroupKey
-							 LEFT JOIN stg_time c
-							 ON c.TimeKey = z.TimeKey
-							 WHERE TeacherKey = $key AND a.SubjectDescription IS NOT NULL";
+							$sql = "SELECT a.StudentKey,c.StudentNo,concat(c.LastName,' ', c.FirstName) as NAME FROM school_enrollee a
+									LEFT JOIN stud_student c
+									ON c.StudentKey = a.StudentKey
+									WHERE a.StudentGroupKey IN (SELECT StudentGroupKey 
+									FROM school_schedule WHERE AdviserKey = /*$key*/4)
+									ORDER BY StudentKey";
 							$result = mysqli_query($conn,$sql) or die(mysqli_error($conn));
 						?>
 						<table class="table">
@@ -44,21 +41,21 @@
 							<tr>
 								<table class="table table-bordered">
 									<thead>
-										<th>Subject</th>
-										<th>Section</th>
-										<th>Time</th>
+										<th>StudentKey</th>
+										<th>Name</th>
+										<th>Grade</th>
 
 		                            </thead>
 									<tbody>
 										
 											<?php
 													while($row = mysqli_fetch_assoc($result)){
-														$id = $row['ScheduleKey'];
+														$id = $row['StudentKey'];
 											?>
 											<tr>
-											<td><?php echo $row['SubjectDescription'];?></td>
-											<td><?php echo $row['StudentGroupName'];?></td>
-											<td><?php echo $row['Details'];;?></td>
+											<td><?php echo $row['StudentNo'];?></td>
+											<td><?php echo $row['NAME'];?></td>
+											<td class="col-md-1"><input type="text" class="form-control"></td>
 											</tr>
 											<?php
 													}
@@ -71,7 +68,7 @@
 								}
 								else{
 							?>
-							<th class="text-center">NO DATA FOUND</th>
+							<th class="text-center">NO ADVISORY CLASS</th>
 							<?php
 								}
 							?>

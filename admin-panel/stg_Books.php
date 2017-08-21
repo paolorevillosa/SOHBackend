@@ -14,7 +14,7 @@
 	$result = mysqli_query($conn,$sql) or die(mysqli_error($conn));
 ?>
 
-<button class="btn btn-primary pull-right" onclick="modOnClick(0)">Add New Book</button>
+<button class="btn btn-primary pull-right" onclick="modOnClickBooks(0)">Add New Book</button>
 <br/><br/>
 <table class="table table-bordered">
 	<thead>
@@ -41,7 +41,7 @@
 				<div>
 				<form method="post" action=<?php echo 'scripts/script-stgDelete.php?id='. $id . '&type=books'?> >
 					<input class="btn btn-xs btn-danger" type="submit" value="Delete" onClick="return confirm('Are you sure you want to delete this?');" />
-					<button id="btnUpdate" class="btn-xs btn btn-primary" onclick="modOnClick(<?php echo $id; ?>)">Update</button>
+					<button id="btnUpdateBook" class="btn-xs btn btn-primary" onclick="modOnClickBooks(<?php echo $id; ?>)">Update</button>
 				</form>
 					
 				</div>
@@ -55,7 +55,6 @@
 </table>
 
 <!--modal-->
-
 <div class="modal fade" id="modalBooks" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -74,7 +73,8 @@
 </div>
 
 <script type="text/javascript">
-	function modOnClick($id){
+
+	function modOnClickBooks($id){
 		$.ajax({
 			url: "scripts/script-getBookModal.php",
 			data: {id:$id},
@@ -87,6 +87,7 @@
 			}
 		})
 	}
+
 	$(document).keyup(function(e) {
 	  //if (e.keyCode === 13) $('.save').click();     // enter
 	  if (e.keyCode === 27) {	
@@ -94,7 +95,8 @@
 	  }
 	});
 
-	$('button[id="btnUpdate"]').on("click",function(evt){
+	$('button[id="btnUpdateBook"]').on("click",function(evt){
 		evt.preventDefault();
 	});
+
 </script>
