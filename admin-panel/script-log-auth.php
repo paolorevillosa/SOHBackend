@@ -3,7 +3,8 @@
 	include_once("config.php");
 	$txtUName = $_POST['txtuname'];
 	$txtPass = $_POST['txtPass'];
-	$sql = "call sp_TeacherLogin('$txtUName','$txtPass')";
+	$sql = "SELECT *,concat(LastName, ' ' ,FirstName,' ',MiddleName) as Name FROM main_admin 
+			WHERE UserName = '$txtUName' AND Password = password('$txtPass')";
 	
 	$result = mysqli_query($conn ,$sql)OR die(mysqli_error($conn));
 	if(mysqli_num_rows($result) > 0){

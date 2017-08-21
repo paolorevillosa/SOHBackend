@@ -18,6 +18,7 @@
 	$txtSchoolFrom = $_POST['txtSchoolFrom'];
 	
 	$txtProcessType = $_POST['processType'];
+	$txtPassword = $_POST['newPassword'];
 
 	if($txtProcessType == 0){
 		$sql = "call sp_StudentAdd('','$txtLastName','$txtFirstName','$txtMiddleName','$txtOnChild','$txtAddress','$txtContact','$txtBdate','$txtGuardianName','$txtGender')";
@@ -34,10 +35,23 @@
 	}
 	else{
 		//update
+		$editPass = $txtPassword != "" ? " ,stud_student.password = password('$txtPassword') ": "";
 		$key = $_POST['txtKeyId'];
-		$sql = "call sp_StudentUpdate('$key','$txtLastName','$txtFirstName','$txtMiddleName','$txtOnChild','$txtAddress','$txtContact','$txtBdate','$txtGuardianName','$txtGender')";
+		$sql = "UPDATE stud_student SET
+				stud_student.LastName = '$txtLastName',
+				stud_student.FirstName = '$txtFirstName',
+				stud_student.MiddleName = '$txtMiddleName',
+				stud_student.Address = '$txtAddress',
+				stud_student.ContactNo = '$txtContact',
+				stud_student.DOB = '$txtBdate',
+				stud_student.GuardianName = '$txtGuardianName',
+				stud_student.Gender = '$txtGender',
+				stud_student.isOnlyChild = '$txtOnChild'
+				".
+				$editPass . 
+				"where stud_student.StudentKey = $key";
 
-		//$result = execSQLReturnRes($sql);
+		$result = execSQLReturnRes($sql);
 		if($result){
 			echo "OK";
 		}

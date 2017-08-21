@@ -64,6 +64,12 @@
 	}
 	
 	//MAIN FUNCTION OF SCHEDULE :: THIS WILL AUTO GENERATE STUDENT SCHEDULES
+
+	//this will delete all the data in school_schedule
+	$sql = "DELETE FROM school_schedule";
+	$result = mysqli_query($conn,$sql) or die (mysqli_error($conn));
+	//this is done to avoid too much data stored in DB
+
 	$studgrp = 1;
 	$sysTimeKey = getTime();
 	$adviserKey = getTeacher();
