@@ -100,7 +100,7 @@
 			//this serves as inserting Data in School
 			echo $sysTimeKey[$timeKey]['Status'];
 			if($sysTimeKey[$timeKey]['Status']==0){
-				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . 8 . "," . $adviserKey[$idenAdviser] . ")";
+				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . 8 . ",0)";
 				$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
 				$timeKey++;
 				goto insert;
