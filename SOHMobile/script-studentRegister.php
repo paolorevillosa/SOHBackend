@@ -26,6 +26,11 @@
 		$studentKey = getNextKey();
 		$sqlGrade = "INSERT INTO stud_grade(StudentKey,Status,SchoolFrom,Grade,YearLevel) 
 		VALUES ('$studentKey','$txtStatus','$txtSchoolFrom','$txtGrade','$txtYearLevel')";
+		$result = execSQLReturnRes($sql);
+		$result2 = execSQLReturnRes($sqlGrade);
+		if($result||$result2){
+			echo "OK";
+		}
 		//$resultGrade = execSQLReturnRes($sqlGrade);
 		/*if($result&&$resultGrade){
 			$data = array("StudentId"=>$studentKey,"StudentNo"=>$studentNo);
