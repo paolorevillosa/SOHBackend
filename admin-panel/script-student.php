@@ -25,7 +25,7 @@
 	if(isset($_POST['btnOffialEnroll'])){
 		$key = generateStudentNoV2();
 		$Pkey = $_GET['x'];
-		$sql = "UPDATE stud_student SET  isActive=1, StudentNo = '$key',username='$key',password = password($key) WHERE StudentKey = $Pkey";
+		$sql = "UPDATE stud_student SET  isActive=1, StudentNo = '$key',username='$key',password = PASSWORD('".$key."') WHERE StudentKey = $Pkey";
 
 		//utils for enrollment table
 		$schoolYear = getSchoolYear();

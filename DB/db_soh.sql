@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 21, 2017 at 03:29 PM
+-- Generation Time: Aug 22, 2017 at 08:54 PM
 -- Server version: 10.1.19-MariaDB
 -- PHP Version: 7.0.13
 
@@ -97,7 +97,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_StudentAdd` (IN `txtStudNo` VARC
 insert into stud_student values (null,txtStudNo,txtLName,txtFName,txtMName,txtOnChild,txtAddress,txtContNo,txtDOB,txtGName,txtGender,txtLName,password(txtLName),0)$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_StudentLogin` (IN `txtUName` VARCHAR(100), IN `txtUPass` VARCHAR(100))  NO SQL
-select * from stud_student where username = txtUName and password = PASSWORD(txtUPass)
+select * from stud_student where username = txtUName and stud_student.password = PASSWORD(txtUPass)
 LIMIT 1$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_StudentUpdate` (IN `txtStudNo` VARCHAR(8), IN `txtLName` VARCHAR(100), IN `txtFName` VARCHAR(100), IN `txtMName` VARCHAR(100), IN `txtAddress` VARCHAR(255), IN `txtContNo` VARCHAR(13), IN `txtDOB` DATE, IN `txtGName` VARCHAR(100), IN `txtGender` VARCHAR(100), IN `txtOnChild` INT)  NO SQL
@@ -225,7 +225,11 @@ INSERT INTO `school_enrollee` (`EnrolleeKey`, `StudentKey`, `StudentGroupKey`, `
 (10, 46, 4, 1, '2017-2018', 1),
 (11, 41, 4, 1, '2017-2018', 0),
 (13, 55, 4, 1, '2017-2018', 0),
-(14, 1, 4, 1, '2017-2018', 0);
+(14, 1, 4, 1, '2017-2018', 0),
+(15, 56, 4, 1, '2017-2018', 0),
+(16, 57, 4, 1, '2017-2018', 0),
+(17, 55, 0, 0, '2017-2018', 0),
+(18, 41, 4, 1, '2017-2018', 0);
 
 -- --------------------------------------------------------
 
@@ -277,7 +281,11 @@ INSERT INTO `school_finance` (`FinanceKey`, `StudentKey`, `EnrolleeKey`, `School
 (20, 41, 11, '2017-2018', 9500, 0, 0),
 (21, 43, 12, '2017-2018', 9500, 0, 0),
 (22, 55, 13, '2017-2018', 9500, 0, 0),
-(23, 1, 14, '2017-2018', 9500, 0, 0);
+(23, 1, 14, '2017-2018', 9500, 0, 0),
+(24, 56, 15, '2017-2018', 9500, 0, 0),
+(25, 57, 16, '2017-2018', 9500, 0, 0),
+(26, 55, 17, '2017-2018', 9500, 0, 0),
+(27, 41, 18, '2017-2018', 9500, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -446,13 +454,13 @@ CREATE TABLE `stg_subject` (
 --
 
 INSERT INTO `stg_subject` (`SubjectKey`, `SubjectCode`, `SubjectDescription`, `Comments`, `Status`) VALUES
-(1, 'Fil', 'Filipino', '1', 0),
-(2, 'Eng', 'English', '2', 0),
-(3, 'Sci', 'Sciene', '3', 0),
-(4, 'Ma', 'Mathematics', '4', 0),
-(5, 'EpXAp', 'EP and AP', '5,8', 0),
-(6, 'TleXComp', 'TLE and Computer', '6,9', 0),
-(7, 'Map', 'MAPEH', '7', 0);
+(29, 'Fil', 'Filipino', '1', 1),
+(30, 'Eng', 'English', '2', 1),
+(31, 'Sci', 'Sciene', '3', 1),
+(32, 'Ma', 'Mathematics', '4', 1),
+(33, 'EpXAP', 'Edukasyong sa Pagpapakatao and Araling Panlipunan', '5,8', 1),
+(34, 'TleXComp', 'TLE and Computer Education', '6,9', 1),
+(35, 'Map', 'MAPEH', '7', 1);
 
 -- --------------------------------------------------------
 
@@ -658,7 +666,11 @@ INSERT INTO `stud_clearance` (`ClearanceKey`, `StudentKey`, `EnrolleeKey`, `Libr
 (11, 41, 11, 0, 0, 0),
 (12, 43, 12, 0, 0, 0),
 (13, 55, 13, 0, 0, 0),
-(14, 1, 14, 0, 0, 0);
+(14, 1, 14, 0, 0, 0),
+(15, 56, 15, 0, 0, 0),
+(16, 57, 16, 0, 0, 0),
+(17, 55, 17, 0, 0, 0),
+(18, 41, 18, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -703,7 +715,9 @@ CREATE TABLE `stud_grade` (
 --
 
 INSERT INTO `stud_grade` (`GradeKey`, `StudentKey`, `Status`, `SchoolFrom`, `StudentGroupKey`, `YearLevel`, `Grade`, `SchoolYear`) VALUES
-(10, '43', 'Incoming First Year', 'pp', 0, 0, 90, '');
+(10, '43', 'Incoming First Year', 'pp', 0, 0, 90, ''),
+(11, '55', '', '', 0, 0, 0, ''),
+(12, '56', '', '', 0, 0, 0, '');
 
 -- --------------------------------------------------------
 
@@ -801,18 +815,20 @@ CREATE TABLE `stud_student` (
 --
 
 INSERT INTO `stud_student` (`StudentKey`, `StudentNo`, `LastName`, `FirstName`, `MiddleName`, `isOnlyChild`, `Address`, `ContactNo`, `DOB`, `GuardianName`, `Gender`, `username`, `password`, `isActive`) VALUES
-(1, '17-0014', 'Revillosa', 'Kristian Paolo', 'Galicia', 0, 'Taga Pasig', '09497145955', '1994-12-04', 'Wala', 'M', '17-0014', '*C4E74DDDC9CC9E2FDCDB7F63B127FB638831262E', 1),
-(41, '17-0011', 'txtLName', 'txtFName', 'txtMName', 0, 'txtAddress', 'txtContNo', '0000-00-00', 'txtGName', 't', 'txtLName', '*4087CB91AE10DF0DD802935B1D7998C64E183E32', 1),
-(43, '17-0012', '', '', '', 0, '0', '', '0000-00-00', '', 'F', '', '*226F24D88B3D51C9AF604FF7D1A4140D233411C4', 1),
-(46, '17-0010', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(47, '17-00010', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(48, '17-00010', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(49, '17-0009', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(50, '17-0008', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(51, '17-0007', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(52, '17-0002', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(53, '17-0001', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 1),
-(55, '17-0013', 'revillosa', '', '', 0, '0', '', '0000-00-00', '', '', '17-0013', '*908BE2B7EB7D7567F7FF98716850F59BA69AA9DB', 1);
+(1, '', 'Revillosa', 'Kristian Paolo', 'Galicia', 0, 'Taga Pasig', '09497145955', '1994-12-04', 'Wala', 'M', '17-0014', '*C4E74DDDC9CC9E2FDCDB7F63B127FB638831262E', 0),
+(41, '17-0002', 'txtLName', 'txtFName', 'txtMName', 0, 'txtAddress', 'txtContNo', '0000-00-00', 'txtGName', 't', '17-0002', '*3E9C47314CD4849A840994EAD26B619BC2DDA816', 1),
+(43, '', '', '', '', 0, '0', '', '0000-00-00', '', 'F', '', '*226F24D88B3D51C9AF604FF7D1A4140D233411C4', 0),
+(46, '', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 0),
+(47, '', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 0),
+(48, '', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 0),
+(49, '', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 0),
+(50, '', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 0),
+(51, '', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 0),
+(52, '', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 0),
+(53, '', '', '', '', 0, '', '', '0000-00-00', '', '', '', '', 0),
+(55, '17-0001', 'revillosa', '', '', 0, '0', '', '0000-00-00', '', '', '17-0001', '*427A4CFF90A03A89765537EBAD4258F975C86D44', 1),
+(56, '', 'people', '', '', 0, '0', '', '0000-00-00', '', '', '17-0015', 'password(17-0015)', 0),
+(57, '', 'tets', '', '', 0, '0', '', '0000-00-00', '', '', '17-0016', '*E6CC90B878B948C35E92B003C792C46C58C4AF40', 0);
 
 -- --------------------------------------------------------
 
@@ -1182,7 +1198,7 @@ ALTER TABLE `istg_gender`
 -- AUTO_INCREMENT for table `school_enrollee`
 --
 ALTER TABLE `school_enrollee`
-  MODIFY `EnrolleeKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `EnrolleeKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 --
 -- AUTO_INCREMENT for table `school_enrollment_period`
 --
@@ -1192,7 +1208,7 @@ ALTER TABLE `school_enrollment_period`
 -- AUTO_INCREMENT for table `school_finance`
 --
 ALTER TABLE `school_finance`
-  MODIFY `FinanceKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `FinanceKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 --
 -- AUTO_INCREMENT for table `school_finance_details`
 --
@@ -1212,12 +1228,12 @@ ALTER TABLE `stg_books`
 -- AUTO_INCREMENT for table `stg_subject`
 --
 ALTER TABLE `stg_subject`
-  MODIFY `SubjectKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `SubjectKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 --
 -- AUTO_INCREMENT for table `stg_subjectdesc`
 --
 ALTER TABLE `stg_subjectdesc`
-  MODIFY `SubjectDescKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `SubjectDescKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 --
 -- AUTO_INCREMENT for table `stg_teacher`
 --
@@ -1247,7 +1263,7 @@ ALTER TABLE `stg_yearlevel`
 -- AUTO_INCREMENT for table `stud_clearance`
 --
 ALTER TABLE `stud_clearance`
-  MODIFY `ClearanceKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `ClearanceKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 --
 -- AUTO_INCREMENT for table `stud_clearance1`
 --
@@ -1257,7 +1273,7 @@ ALTER TABLE `stud_clearance1`
 -- AUTO_INCREMENT for table `stud_grade`
 --
 ALTER TABLE `stud_grade`
-  MODIFY `GradeKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `GradeKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 --
 -- AUTO_INCREMENT for table `stud_notification`
 --
@@ -1272,7 +1288,7 @@ ALTER TABLE `stud_notification_v2`
 -- AUTO_INCREMENT for table `stud_student`
 --
 ALTER TABLE `stud_student`
-  MODIFY `StudentKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `StudentKey` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 --
 -- AUTO_INCREMENT for table `stud_studentgroup`
 --
