@@ -78,6 +78,8 @@
 		}
 		else if($grade<81){
 			return $data[3];	
+		}else{
+			return $data[3];	
 		}
 	}
 

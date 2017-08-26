@@ -7,7 +7,7 @@
 	$txtBdate = $_POST['txtBdate'];
 	$txtGuardianName = $_POST['txtGuardianName'];
 	$txtGender = $_POST['txtGender'];
-	$txtAddress =$_POST['txtAddress'];
+	//$txtAddress =$_POST['txtAddress'];
 	$studentNo = generateStudentNo();
 	$txtOnChild = $_POST['txtOnChild'];
 
@@ -20,8 +20,20 @@
 	$txtProcessType = $_POST['processType'];
 	$txtPassword = $_POST['newPassword'];
 
+	//additional for address
+	$txtHouseNo = $_POST['txtHouseNo'];
+	$txtSubdVill = $_POST['txtSubdVill'];
+	$txtCity = $_POST['txtCity'];
+	$txtBarangay = $_POST['txtBarangay'];
+
 	if($txtProcessType == 0){
-		$sql = "call sp_StudentAdd('','$txtLastName','$txtFirstName','$txtMiddleName','$txtOnChild','$txtAddress','$txtContact','$txtBdate','$txtGuardianName','$txtGender')";
+		if(checkFirst($txtLastName,$txtFirstName,$txtMiddleName)!=0){
+			echo "0";
+			return;
+		}
+
+		/*$sql = "call sp_StudentAdd('','$txtLastName','$txtFirstName','$txtMiddleName','$txtOnChild','$txtAddress','$txtContact','$txtBdate','$txtGuardianName','$txtGender')";*/
+		$sql = "call sp_StudentAddV2('','$txtLastName','$txtFirstName','$txtMiddleName','$txtContact','$txtBdate','$txtGuardianName','$txtGender','$txtOnChild','$txtHouseNo','$txtSubdVill','$txtBarangay','$txtCity')";
 		//$result = execSQLReturnRes($sql);
 		$studentKey = getNextKey();
 		$sqlGrade = "INSERT INTO stud_grade(StudentKey,Status,SchoolFrom,Grade,YearLevel) 
@@ -29,14 +41,8 @@
 		$result = execSQLReturnRes($sql);
 		$result2 = execSQLReturnRes($sqlGrade);
 		if($result||$result2){
-			echo "OK";
+			echo "1";
 		}
-		//$resultGrade = execSQLReturnRes($sqlGrade);
-		/*if($result&&$resultGrade){
-			$data = array("StudentId"=>$studentKey,"StudentNo"=>$studentNo);
-			$studentData = array("StudentGrade"=>$txtGrade,"StudentCurrentLevel"=>$txtYearLevel,"SchoolFrom"=>$txtSchoolFrom);
-			echo json_encode(array($data,$studentData));
-		}*/
 	}
 	else{
 		//update
@@ -58,11 +64,10 @@
 
 		$result = execSQLReturnRes($sql);
 		if($result){
-			echo "OK";
+			echo "1";
 		}
 
 	}
-	echo $txtProcessType;
 	
 ?>
 
@@ -122,5 +127,16 @@ function getGender($gender){
 	}
 }
 
-
+function checkFirst($LastName,$FirstName,$MiddleName){
+	include("config.php");
+	$val = 0;
+	$sql = "SELECT count(*) as 'avail' FROM stud_student
+			WHERE LastName = '$LastName' AND
+			FirstName = '$FirstName' AND
+			MiddleName = '$MiddleName'";
+	$result = mysqli_query($conn ,$sql) OR die(mysqli_error($conn));
+	$row = mysqli_fetch_assoc($result);
+	$val = $row['avail'];
+	return $val;
+}
 ?>
