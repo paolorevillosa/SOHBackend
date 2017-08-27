@@ -4,9 +4,9 @@
 	<tbody>
 		<tr>
 			<td>Enrollment</td>
-		<form method="post" action="testScheduling.php">
+		<!--<form method="post">-->
 		<?php
-			if(isset($_POST['btnA'])){
+			if(isset($_GET['btnA'])){
 				$sql = "UPDATE school_enrollment_period SET dateCreated=curdate(), isEnrollemt = 1";
 				$result = mysqli_query($conn ,$sql) OR die(mysqli_error($conn));
 				echo '<div class="alert alert-success alert-dismissible" role="alert">
@@ -28,10 +28,12 @@
 				$row = mysqli_fetch_assoc($result);
 			
 			if($row['isEnrollemt']==0){
-				echo '<td><button type="submit" class="btn btn-primary" name="btnA">Open Enrollment</button></td>';
+				echo '<td><button type="submit" class="btn btn-primary" name="btnA" data-toggle="modal" data-target="#myModal-forEnrollment">Open Enrollment</button></td>';
 			}
 			else{
+				echo "<form method='post'>";
 				echo '<td><button type="submit" class="btn btn-danger" name="btnI">Disable Enrollment</button></td>';
+				echo "</form>";
 			}
 		?>
 		
@@ -53,7 +55,7 @@
 			?>
 			></td>
 		</tr>
-		</form>
+		<!--</form>-->
 	</tbody>
 </table>
 
@@ -94,3 +96,26 @@
 		echo "OK";
 	}
 ?>
+
+<!--modal-->
+<div class="modal fade" id="myModal-forEnrollment" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Book Information</h4>
+            </div>
+            <div id="modalContent-Enrollment">
+            	You are about to open the system for enrollment<br>
+            	Do you want to generate a new schedule?
+            </div>
+            <div class="modal-footer">
+            	<form method="post"  action="testScheduling.php">
+					<input type="submit" class="btn btn-default" value="Yes" name="btnYes">
+					<input type="submit" class="btn btn-default" value="No" name="btnNo">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</form>
+			</div>
+        </div>
+    </div>
+</div>

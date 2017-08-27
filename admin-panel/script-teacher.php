@@ -16,11 +16,11 @@
 	if(isset($_POST['btnSave'])){
 		$key = generateTeacherNo();
 		
-		$sql = "insert into stg_teacher values (null,'$key','$txtLastName','$txtFirstName','$txtMiddleName','$txtAddress','$txtContact','$txtBirthDate','$txtYearLevel',(select SubjectKey from stg_Subject where Comments like ('%". $txtSbjCode ."%')),'$txtSbjCode','$txtCivilStatus','$key',password('$key'))";
+		$sql = "INSERT into stg_teacher values (null,'$key','$txtLastName','$txtFirstName','$txtMiddleName','$txtAddress','$txtContact','$txtBirthDate','$txtYearLevel',(select SubjectKey from stg_Subject where Comments like ('%". $txtSbjCode ."%')),'$txtSbjCode','$txtCivilStatus','$key',password('$key'))";
 	}
 	else if(isset($_POST['btnUpdate'])){
 		$key = $_GET['x'];
-		$sql = "update stg_teacher SET
+		$sql = "UPDATE stg_teacher SET
 				stg_teacher.LastName = '$txtLastName',
 				stg_teacher.FirstName = '$txtFirstName',
 				stg_teacher.MiddleName = '$txtMiddleName',

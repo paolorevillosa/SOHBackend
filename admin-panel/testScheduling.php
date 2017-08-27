@@ -1,7 +1,4 @@
 <?php
-	
-	//set_time_limit(0) ;
-	//echo TotalSubject();
 	echo '<pre>';
 	//print_r(subjectShuffle());
 	echo '</pre>';
@@ -20,7 +17,7 @@
 
 		shuffle($arraySub);
 		$idYL = 1; //init idYL data
-		for($x=0;$x<=24;$x++){ // this is for the number of of subject/sec to be produced by the system 
+		for($x=0;$x<20;$x++){ // this is for the number of of subject/sec to be produced by the system 
 			shuffle($arraySub);
 			//this will reset the array to avoid runtime error
 			if($idYL < $groupKeys[$x]){
@@ -41,9 +38,6 @@
 		return $finalArray;
 	}
 
-
-	
-	
 	function TotalSubject(){
 		include("config.php");
 		$sql = "select * from vw_totalsubject";
@@ -62,71 +56,81 @@
 		$result->close();
 		return $data;	
 	}
-	
-	//MAIN FUNCTION OF SCHEDULE :: THIS WILL AUTO GENERATE STUDENT SCHEDULES
 
-	//this will delete all the data in school_schedule
-	$sql = "DELETE FROM school_schedule";
-	$result = mysqli_query($conn,$sql) or die (mysqli_error($conn));
-	//this is done to avoid too much data stored in DB
-
-	$studgrp = 1;
-	$sysTimeKey = getTime();
-	$adviserKey = getTeacher();
-	$idenAdviser = 0;
-	foreach(subjectShuffle() as $arr){
+	if(isset($_POST['btnYes'])){
 		include('config.php');
-		
-		$timeKey = 0;
-		foreach($arr as $sbjCode){
-			$sql = "call sp_getTeacherKey($studgrp,$sbjCode)";
-			$result = mysqli_query($conn,$sql) or die (mysqli_error($conn));
+		//MAIN FUNCTION OF SCHEDULE :: THIS WILL AUTO GENERATE STUDENT SCHEDULES
+
+		//this will delete all the data in school_schedule
+		$sql = "TRUNCATE table school_schedule";
+		$result = mysqli_query($conn,$sql) or die (mysqli_error($conn));
+		//this is done to avoid too much data stored in DB
+
+		$studgrp = 1;
+		$sysTimeKey = getTime();
+		$adviserKey = getTeacher();
+		$idenAdviser = 0;
+		foreach(subjectShuffle() as $arr){
 			
-			if(mysqli_num_rows($result) > 0 ){
-				$teacherKey="";
-				while($row = mysqli_fetch_assoc($result)){
-					//echo "TEACHER CODE:" . $row['TeacherKey'] . "<BR>";
-					$teacherKey = $teacherKey . $row['TeacherKey'] . ",";
+			
+			$timeKey = 0;
+			foreach($arr as $sbjCode){
+				$sql = "call sp_getTeacherKey($studgrp,$sbjCode)";
+				$result = mysqli_query($conn,$sql) or die (mysqli_error($conn));
+				
+				if(mysqli_num_rows($result) > 0 ){
+					$teacherKey="";
+					while($row = mysqli_fetch_assoc($result)){
+						echo "TEACHER CODE:" . $row['TeacherKey'] . "<BR>";
+						$teacherKey = $teacherKey . $row['TeacherKey'] . ",";
+					}
 				}
+				else{
+					$teacherKey = 0;
+				}
+				
+				$result->close(); 
+				$conn->next_result();  //this is to avoid out of sync error ::: caused by multiple query inside the loop
+				
+				insert:
+				//this serves as inserting Data in School
+				echo $sysTimeKey[$timeKey]['Status'];
+				if($sysTimeKey[$timeKey]['Status']==0){
+					$sqlInsert = "call sp_AddSched(" . $studgrp . ",'0'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . 50 . ",0)";
+					$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
+					$timeKey++;
+					goto insert;
+				}
+				else{
+					$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . $sbjCode . "," . $adviserKey[$idenAdviser] . ")";
+					$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
+					$timeKey++;
+				}
+				
+				$conn->next_result();
+				
+				
 			}
-			else{
-				$teacherKey = 0;
-			}
-			
-			$result->close(); 
-			$conn->next_result();  //this is to avoid out of sync error ::: caused by multiple query inside the loop
-			
-			insert:
-			//this serves as inserting Data in School
-			echo $sysTimeKey[$timeKey]['Status'];
-			if($sysTimeKey[$timeKey]['Status']==0){
-				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . 8 . ",0)";
-				$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
-				$timeKey++;
-				goto insert;
-			}
-			else{
-				$sqlInsert = "call sp_AddSched(" . $studgrp . ",'" . $teacherKey . "'," . $sysTimeKey[$timeKey]['TimeKey'] . "," . $sbjCode . "," . $adviserKey[$idenAdviser] . ")";
-				$resultInsert = mysqli_query($conn,$sqlInsert) or die (mysqli_error($conn));
-				$timeKey++;
-			}
-			
-			$conn->next_result();
-			
-			
+			$studgrp++;
+			$idenAdviser++;
+			echo "<br><br>";	
 		}
-		$studgrp++;
-		$idenAdviser++;
-		echo "<br><br>";
-		// ."<br>";
+		//END OF MAIN FUNCTION
+		updateEnrollment(1);
+		header("location:dashboard.php");
 	}
-	//END OF MAIN FUNCTION
 ?>
 
 
 
 <!-- //schedule Utils -->
 <?php
+	function updateEnrollment($x){
+		include('config.php');
+		$sql = "UPDATE school_enrollment_period SET dateCreated=curdate(), isEnrollemt = $x";
+		$result = mysqli_query($conn ,$sql) OR die(mysqli_error($conn));
+	}
+
 	function getSbjGroup(){
 		include("config.php");
 		$sql = "SELECT * from stud_StudentGroup";
@@ -150,8 +154,6 @@
 		$result->close();
 		return $data;
 	}
-	echo "<pre>";
-	print_r(getTime());
 
 	function utilsForGetTeacher(){
 		include("config.php");

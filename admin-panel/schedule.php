@@ -58,11 +58,25 @@
 								if(!empty($_POST['yearLevel'])){
 									$id = $_POST['section'];	
 								}
-								$sql = "call sp_getScheduleV2('$id')";
+								//$sql = "call sp_getScheduleV2('$id')";
+								$sql = "SELECT a.ScheduleKey,a.StudentGroupKey,b.StudentGroupName,
+												a.SubjectKey,a.TeacherKey,c.LastName,a.TimeKey,
+												IFNULL(e.SubjectDescription,'BREAK') as SubjectDescription,d.Details
+												From school_schedule a
+												LEFT JOIN stud_studentgroup b
+												ON a.StudentGroupKey = b.StudentGroupKey
+												LEFT JOIN stg_teacher c
+												ON a.TeacherKey = c.TeacherKey
+												LEFT JOIN stg_time d
+												ON d.TimeKey = a.TimeKey
+												LEFT JOIN stg_subject e
+												ON e.SubjectKey = a.SubjectKey
+												WHERE a.StudentGroupKey = $id";
 								$result = mysqli_query($conn,$sql) or die(mysqli_error($conn));
 						?>
 						<table class="table">
 							<?php
+								echo mysqli_num_rows($result);
 								if(mysqli_num_rows($result) > 0){
 									$row = mysqli_fetch_assoc($result);
 							?>
@@ -77,21 +91,22 @@
 							<tr>
 								<table class="table table-bordered">
 									<thead>
-										<th>Subject</th>
 										<th>Time</th>
+										<th>Subject</th>
 										<th>Teacher</th>
 										<!--<th>Actions</th>-->
 		                            </thead>
 									<tbody>
 										
 											<?php
+												$result = mysqli_query($conn,$sql) or die(mysqli_error($conn));
 													while($row = mysqli_fetch_assoc($result)){
 														$id = $row['ScheduleKey'];
 											?>
 											<tr>
-											<td><?php echo $row['SubjectDescription'];?></td>
 											<td><?php echo $row['Details'];?></td>
-											<td><?php echo $row['LastName'];;?></td>
+											<td><?php echo $row['SubjectDescription'];?></td>
+											<td><?php echo /*$row['LastName'];*/getTeacher($row['TeacherKey']);?></td>
 											<!--<td>
 												<form method="post" action=<?php echo 'script-delete-student.php?x='. $id?>>
 													<a class="btn btn-primary" href="<?php echo 'studentDetails.php?key='.$id?>">Update</a>
@@ -143,3 +158,36 @@
               });
        });
   </script>
+
+
+<?php
+  		//get teacher for multpiple teacher
+  	function getTeacher($id){
+    	$teacherName = '';
+      	$ids = explode(",", $id);
+      	for($x=0;$x<sizeof($ids);$x++){
+        	if($ids[$x] == ""){
+          		continue;
+        	}
+	        include("config.php");
+	        $sql = "SELECT * from stg_teacher where TeacherKey = " . $ids[$x];
+	        $result = mysqli_query($conn ,$sql) OR die(mysqli_error($conn));  
+	        $row = mysqli_fetch_assoc($result);
+	        if($x>0){
+	          $teacherName = $teacherName . "<br>" . $row['LastName'];  
+	        }
+	        else{
+	          $teacherName .= $row['LastName'];  
+	        }
+      	}
+      return $teacherName;
+    }
+    function getSubject($sub){
+    	$subjects = explode(" and ", $sub);
+	    $subject = $subjects[0];
+	    if(sizeof($subjects)!=1){
+	    	$subject = $subjects[0] ."<br>" . $subjects[1];
+	    }
+	    return $subject;
+    }
+?>
