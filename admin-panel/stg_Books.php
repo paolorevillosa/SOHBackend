@@ -1,13 +1,16 @@
 <?php
 	include("config.php");
-	//this will save book from POST
 	if(isset($_POST['btnSubmitBook'])){
 		$txtBookCode = $_POST['txtBookCode'];
 		$txtBookName = $_POST['txtBookName'];
 		$txtBookPrice = $_POST['txtBookPrice'];
 		$txtYearLevelKey = $_POST['txtYearLevelKey'];
+		$isUpdate = $_POST['isUpdate'];
 
-		$sql = "insert into stg_books values(null,'$txtBookCode','$txtBookName','$txtBookPrice','$txtYearLevelKey')";
+		$sql = "INSERT into stg_books values(null,'$txtBookCode','$txtBookName','$txtBookPrice','$txtYearLevelKey')";
+		if($isUpdate=="1"){
+			$sql = "UPDATE stg_books SET BookName = '$txtBookName',BookPrice='$txtBookPrice',YearLevelKey = '$txtYearLevelKey' WHERE BookCode = '$txtBookCode'";
+		}
 		$result = mysqli_query($conn,$sql) or die(mysqli_error($conn));	
 	}
 	$sql = "select * from stg_books";

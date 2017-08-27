@@ -89,7 +89,7 @@ function generateStudentNoV2(){
 
 function generateTeacherNo(){
 	include("config.php");
-	$sql = "select * from stg_teacher";
+	$sql = "SELECT * from stg_teacher ";
 	$result = mysqli_query($conn ,$sql) OR die(mysqli_error($conn));
 	if(mysqli_num_rows($result) > 0){
 		while($row = mysqli_fetch_assoc($result)){
