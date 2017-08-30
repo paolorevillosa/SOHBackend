@@ -77,8 +77,8 @@
 	        <textarea class="form-control" id="txtSInfo3" placeholder="Message" name="txtMessage"></textarea>
 	      </div>
 	    </div>
-
-	    <div class="form-group row">
+		
+		 <div class="form-group row">
 	      <label for="txtSInfo3" class="col-sm-2 col-form-label">Post Until</label>
 	      <div class="col-sm-7">
 	        <input type="date" name="dateUntil" class="form-control">
@@ -86,7 +86,7 @@
 	    </div>
 
 
-	    <input type="submit" value="Save" name = "btnSubmitNotif" class="btn btn-primary col-sm-push-2 col-sm-7">
+	   	    <Button type="submit" value="Save" name="btnSubmitNotif" class="btn btn-primary col-sm-push-3 col-sm-5"><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
 	</div>
 </form>
 
@@ -114,9 +114,9 @@
                 <h4 class="modal-title">Book Information</h4>
             </div>
             <div id="modalContent-Enrollment">
-            	You are about to open the system for enrollment<br>
-            	Do you want to generate a new schedule?
-            </div>
+            	    You are about to open the system for enrollment<br>
+            	    Do you want to generate a new schedule?
+            </div> 
             <div class="modal-footer">
             	<form method="post"  action="testScheduling.php">
 					<input type="submit" class="btn btn-default" value="Yes" name="btnYes">
