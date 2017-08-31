@@ -119,6 +119,10 @@
 		updateEnrollment(1);
 		header("location:dashboard.php");
 	}
+	if(isset($_POST['btnNo'])){
+		updateEnrollment(1);
+		header("location:dashboard.php");
+	}
 ?>
 
 
